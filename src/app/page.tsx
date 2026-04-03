@@ -37,7 +37,7 @@ export default function HomePage() {
     setSaveState("saving");
 
     // Strip profilePhoto — too large for DB
-    const { profilePhoto: _photo, ...formDataToSave } = formData;
+    const { profilePhoto: _, ...formDataToSave } = formData;
 
     try {
       const res = await fetch("/api/save-circular", {
