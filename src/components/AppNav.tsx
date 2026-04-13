@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
@@ -17,7 +18,7 @@ export default function AppNav() {
       <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-6 h-16">
         {/* Left: Logo + divider + product name */}
         <div className="flex items-center gap-3">
-          <img src="/aeonx-logo-dark.png" alt="AeonX" style={{ height: 36 }} />
+          <Image src="/aeonx-logo-dark.png" alt="AeonX" height={36} width={120} style={{ height: 36, width: "auto" }} />
           <div className="w-px h-6 bg-gray-200" />
           <span className="text-sm text-gray-400 font-medium">HR Tools</span>
         </div>

@@ -123,7 +123,6 @@ export default function ImageCropModal({
       if (resizing.current) {
         const dx = e.clientX - resizeStart.current.mx;
         const newW = Math.max(50, resizeStart.current.rw + dx);
-        const newH = newW / aspectRatio;
         setRect(prev => {
           const clampedW = Math.min(newW, w - prev.x);
           const clampedH = clampedW / aspectRatio;
