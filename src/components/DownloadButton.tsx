@@ -5,9 +5,10 @@ import { useState } from "react";
 interface Props {
   targetId: string;
   fileName: string;
+  backgroundColor?: string;
 }
 
-export default function DownloadButton({ targetId, fileName }: Props) {
+export default function DownloadButton({ targetId, fileName, backgroundColor = "#ffffff" }: Props) {
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async () => {
@@ -19,7 +20,7 @@ export default function DownloadButton({ targetId, fileName }: Props) {
       const dataUrl = await toPng(node, {
         cacheBust: true,
         pixelRatio: 2,
-        backgroundColor: "#ffffff",
+        backgroundColor,
       });
 
       const link = document.createElement("a");
@@ -40,7 +41,7 @@ export default function DownloadButton({ targetId, fileName }: Props) {
     <button
       onClick={handleDownload}
       disabled={loading}
-      className="flex items-center gap-2 px-6 py-2.5 bg-gray-800 hover:bg-gray-900 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors text-sm"
+      className="flex items-center gap-2 px-5 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors text-sm"
     >
       {loading ? (
         <>

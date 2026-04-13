@@ -30,6 +30,33 @@ export interface SaveCircularResponse {
   error?: string;
 }
 
+// ── Anniversary ──────────────────────────────────────────────────
+export type AnniversaryTemplate = 1 | 2 | 3 | 4 | 5 | 6;
+
+export interface AnniversaryFormData {
+  name: string;
+  years: number;
+  role: string;
+  profilePhoto: string | null;
+}
+
+export interface GenerateAnniversaryResponse {
+  message: string;
+  error?: string;
+}
+
+// ── Birthday ──────────────────────────────────────────────────────
+export interface BirthdayFormData {
+  name: string;
+  role: string;
+  profilePhoto: string | null;
+}
+
+export interface GenerateBirthdayResponse {
+  message: string;
+  error?: string;
+}
+
 export interface CircularRecord {
   id: string;
   name: string;

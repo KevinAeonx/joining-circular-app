@@ -6,21 +6,104 @@ interface Props {
   paragraph: string;
 }
 
-function ParagraphWithEmail({ text, email }: { text: string; email: string }) {
-  if (!email || !text.includes(email)) return <>{text}</>;
-  const parts = text.split(email);
+type HighlightStyle = "email" | "manager" | "location" | "date" | "language" | "hobby" | "name";
+
+const HIGHLIGHT_STYLES: Record<HighlightStyle, React.CSSProperties> = {
+  email:    { color: "#C94000", textDecoration: "underline", fontWeight: 700 },
+  manager:  { fontWeight: 700 },
+  location: { color: "#C94000", fontWeight: 700 },
+  date:     { color: "#C94000", fontWeight: 700 },
+  language: { fontWeight: 700 },
+  hobby:    { fontWeight: 700 },
+  name:     { color: "#C94000", fontWeight: 700 },
+};
+
+function buildHighlightTokens(
+  formData: FormData
+): Array<{ text: string; style: HighlightStyle }> {
+  const tokens: Array<{ text: string; style: HighlightStyle }> = [];
+
+  // Name — match "Mr. X" / "Ms. X" or bare name
+  if (formData.name) {
+    const prefix = formData.gender === "he" ? "Mr. " : "Ms. ";
+    tokens.push({ text: prefix + formData.name, style: "name" });
+    tokens.push({ text: formData.name, style: "name" });
+  }
+
+  // Reporting manager — may be comma-separated
+  if (formData.reportingManager) {
+    formData.reportingManager.split(",").map(s => s.trim()).filter(Boolean).forEach(m =>
+      tokens.push({ text: m, style: "manager" })
+    );
+  }
+
+  // Office locations
+  if (formData.officeLocation) {
+    formData.officeLocation.split(",").map(s => s.trim()).filter(Boolean).forEach(loc =>
+      tokens.push({ text: loc, style: "location" })
+    );
+  }
+
+  // Joining date — format as it may appear in the paragraph (e.g. "25 April 2026")
+  if (formData.joiningDate) {
+    const d = new Date(formData.joiningDate);
+    if (!isNaN(d.getTime())) {
+      const formatted = d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      tokens.push({ text: formatted, style: "date" });
+    }
+  }
+
+  // Languages
+  if (formData.languages) {
+    formData.languages.split(",").map(s => s.trim()).filter(Boolean).forEach(lang =>
+      tokens.push({ text: lang, style: "language" })
+    );
+  }
+
+  // Hobbies
+  if (formData.hobbies) {
+    formData.hobbies.split(",").map(s => s.trim()).filter(Boolean).forEach(h =>
+      tokens.push({ text: h, style: "hobby" })
+    );
+  }
+
+  // Email
+  if (formData.email) {
+    tokens.push({ text: formData.email, style: "email" });
+  }
+
+  // Sort longest first so longer matches take priority over substrings
+  return tokens.sort((a, b) => b.text.length - a.text.length);
+}
+
+function HighlightedParagraph({ text, formData }: { text: string; formData: FormData }) {
+  const tokens = buildHighlightTokens(formData);
+
+  // Split the text into segments: { value, style? }
+  type Seg = { value: string; style?: HighlightStyle };
+  let segments: Seg[] = [{ value: text }];
+
+  for (const token of tokens) {
+    const next: Seg[] = [];
+    for (const seg of segments) {
+      if (seg.style) { next.push(seg); continue; }
+      const idx = seg.value.indexOf(token.text);
+      if (idx === -1) { next.push(seg); continue; }
+      if (idx > 0) next.push({ value: seg.value.slice(0, idx) });
+      next.push({ value: token.text, style: token.style });
+      const tail = seg.value.slice(idx + token.text.length);
+      if (tail) next.push({ value: tail });
+    }
+    segments = next;
+  }
+
   return (
     <>
-      {parts.map((part, i) => (
-        <span key={i}>
-          {part}
-          {i < parts.length - 1 && (
-            <span style={{ color: "#C94000", textDecoration: "underline", fontWeight: 700 }}>
-              {email}
-            </span>
-          )}
-        </span>
-      ))}
+      {segments.map((seg, i) =>
+        seg.style
+          ? <span key={i} style={HIGHLIGHT_STYLES[seg.style]}>{seg.value}</span>
+          : <span key={i}>{seg.value}</span>
+      )}
     </>
   );
 }
@@ -177,7 +260,7 @@ export default function CircularPreview({ formData, paragraph }: Props) {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "14px" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/aeonx-logo.png"
+            src="/aeonx-logo-dark.png"
             alt="AeonX Digital"
             style={{ height: "90px", objectFit: "contain" }}
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -252,7 +335,7 @@ export default function CircularPreview({ formData, paragraph }: Props) {
           flex: 1,
         }}>
           {paragraph ? (
-            <ParagraphWithEmail text={paragraph} email={formData.email} />
+            <HighlightedParagraph text={paragraph} formData={formData} />
           ) : (
             <span style={{ color: "#bbb", fontWeight: 400, fontStyle: "italic" }}>
               Fill in the details and click &ldquo;Generate Welcome Paragraph&rdquo; to preview the circular...
@@ -260,9 +343,19 @@ export default function CircularPreview({ formData, paragraph }: Props) {
           )}
         </div>
 
+        {/* Regards sign-off */}
+        <div style={{ marginTop: "16px", textAlign: "center" }}>
+          <div style={{ fontSize: "16px", color: "#1a1a1a", fontWeight: 600, lineHeight: 1.6 }}>
+            Regards,
+          </div>
+          <div style={{ fontSize: "17px", color: "#C94000", fontWeight: 700, lineHeight: 1.6 }}>
+            Aeonx Digital
+          </div>
+        </div>
+
         {/* Bottom accent bar */}
         <div style={{
-          marginTop: "16px",
+          marginTop: "12px",
           height: "3px",
           borderRadius: "2px",
           background: "linear-gradient(90deg, rgba(201,64,0,0) 0%, #C94000 30%, #F8A828 70%, rgba(248,168,40,0) 100%)",

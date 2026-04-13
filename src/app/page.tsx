@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
 import JoiningForm from "@/components/JoiningForm";
 import CircularPreview from "@/components/CircularPreview";
 import DownloadButton from "@/components/DownloadButton";
@@ -66,50 +65,49 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-white border-b shadow-sm px-8 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">
-            AeonX Digital — Joining Circular Generator
-          </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Fill in the employee details, generate the welcome paragraph with AI, then download.
-          </p>
-        </div>
-        <Link
-          href="/history"
-          className="text-sm font-semibold text-orange-600 hover:text-orange-700 border border-orange-200 hover:border-orange-400 px-4 py-2 rounded-lg transition-colors"
-        >
-          View History
-        </Link>
-      </div>
+    <main className="min-h-screen bg-slate-50">
+      <div className="flex gap-6 p-6 items-start max-w-screen-2xl mx-auto">
 
-      <div className="flex gap-6 p-6 items-start">
-        {/* Left: Form panel */}
-        <div className="w-80 flex-shrink-0 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <JoiningForm onChange={setFormData} onParagraphGenerated={setParagraph} />
+        {/* LEFT: Form panel */}
+        <div className="w-80 flex-shrink-0 rounded-2xl shadow-sm border border-gray-100 overflow-hidden bg-white">
+          {/* Panel hero header */}
+          <div className="bg-gradient-to-br from-orange-500 to-orange-600 px-5 py-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">📋</span>
+              <div>
+                <h2 className="text-white font-bold text-base leading-tight">Joining Circular</h2>
+                <p className="text-orange-100 text-xs mt-0.5">AI-powered welcome paragraph</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-5">
+            <JoiningForm onChange={setFormData} onParagraphGenerated={setParagraph} />
+          </div>
         </div>
 
-        {/* Right: Preview + Actions */}
+        {/* RIGHT: Preview + actions */}
         <div className="flex flex-col gap-4 flex-1 min-w-0">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-gray-600">Preview</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Preview action bar */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                <span className="text-sm font-semibold text-gray-700">Live Preview</span>
+              </div>
               <div className="flex items-center gap-2">
                 {/* Save button */}
                 <button
                   onClick={handleSave}
                   disabled={!canSave || saveState === "saving" || saveState === "saved"}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-colors
-                    ${saveState === "saved"
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                    saveState === "saved"
                       ? "bg-green-500 text-white"
                       : saveState === "error"
                       ? "bg-red-500 text-white"
                       : !canSave
                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                       : "bg-orange-100 text-orange-700 hover:bg-orange-200"
-                    }`}
+                  }`}
                 >
                   {saveState === "saving" && (
                     <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
@@ -133,19 +131,21 @@ export default function HomePage() {
                 <DownloadButton targetId="circular-preview" fileName={downloadFileName} />
               </div>
             </div>
-            <div className="overflow-x-auto">
+            <div className="p-4 overflow-x-auto">
               <CircularPreview formData={formData} paragraph={paragraph} />
             </div>
           </div>
 
-          {/* Editable paragraph */}
           {paragraph && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-              <h2 className="text-sm font-semibold text-gray-600 mb-2">
-                Edit Paragraph (changes update the preview)
-              </h2>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <h3 className="text-sm font-semibold text-gray-700">Edit Paragraph</h3>
+              </div>
               <textarea
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 resize-none bg-gray-50"
                 rows={5}
                 value={paragraph}
                 onChange={(e) => setParagraph(e.target.value)}

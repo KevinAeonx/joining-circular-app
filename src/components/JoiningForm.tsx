@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { FormData } from "@/types";
 import MultiSelect from "./MultiSelect";
+import ImageCropModal from "./ImageCropModal";
 
 interface Props {
   onChange: (data: FormData) => void;
@@ -48,6 +49,7 @@ export default function JoiningForm({ onChange, onParagraphGenerated }: Props) {
   const [form, setForm] = useState<FormData>(defaultForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [options, setOptions] = useState<OptionsMap>({
     job_title: [],
     reporting_manager: [],
@@ -104,11 +106,22 @@ export default function JoiningForm({ onChange, onParagraphGenerated }: Props) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      const updated = { ...form, profilePhoto: reader.result as string };
-      setForm(updated);
-      onChange(updated);
+      setCropSrc(reader.result as string);
     };
     reader.readAsDataURL(file);
+    // Reset input so the same file can be re-selected after cancel
+    e.target.value = "";
+  };
+
+  const handleCropDone = (croppedDataUrl: string) => {
+    const updated = { ...form, profilePhoto: croppedDataUrl };
+    setForm(updated);
+    onChange(updated);
+    setCropSrc(null);
+  };
+
+  const handleCropCancel = () => {
+    setCropSrc(null);
   };
 
   const handleGenerate = async () => {
@@ -143,8 +156,13 @@ export default function JoiningForm({ onChange, onParagraphGenerated }: Props) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold text-gray-800 border-b pb-2">Employee Details</h2>
-
+      {cropSrc && (
+        <ImageCropModal
+          imageSrc={cropSrc}
+          onCrop={handleCropDone}
+          onCancel={handleCropCancel}
+        />
+      )}
       <div className="grid grid-cols-2 gap-3">
         <div className="col-span-2">
           <label className={labelClass}>Full Name *</label>
@@ -275,7 +293,16 @@ export default function JoiningForm({ onChange, onParagraphGenerated }: Props) {
             onChange={handlePhotoUpload}
           />
           {form.profilePhoto && (
-            <p className="text-xs text-green-600 mt-1">Photo uploaded</p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-xs text-green-600">Photo uploaded</p>
+              <button
+                type="button"
+                onClick={() => setCropSrc(form.profilePhoto!)}
+                className="text-xs text-orange-600 underline hover:text-orange-800"
+              >
+                Re-crop
+              </button>
+            </div>
           )}
         </div>
       </div>
