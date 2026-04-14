@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { FormData } from "@/types";
 import MultiSelect from "./MultiSelect";
 import ImageCropModal from "./ImageCropModal";
+import optionsData from "@/data/options.json";
 
 interface Props {
   onChange: (data: FormData) => void;
@@ -30,45 +31,16 @@ type OptionsMap = {
   hobby: string[];
 };
 
-async function fetchOptions(category: string): Promise<string[]> {
-  const res = await fetch(`/api/options?category=${category}`);
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.options ?? [];
-}
-
-async function saveOption(category: string, value: string) {
-  await fetch("/api/options", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ category, value }),
-  });
-}
-
 export default function JoiningForm({ onChange, onParagraphGenerated }: Props) {
   const [form, setForm] = useState<FormData>(defaultForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [cropSrc, setCropSrc] = useState<string | null>(null);
-  const [options, setOptions] = useState<OptionsMap>({
-    job_title: [],
-    reporting_manager: [],
-    office_location: [],
-    language: [],
-    hobby: [],
-  });
+  const [options, setOptions] = useState<OptionsMap>(optionsData);
 
-  // Fetch all dropdown options on mount
+  // No need to fetch, options are loaded from JSON
   useEffect(() => {
-    Promise.all([
-      fetchOptions("job_title"),
-      fetchOptions("reporting_manager"),
-      fetchOptions("office_location"),
-      fetchOptions("language"),
-      fetchOptions("hobby"),
-    ]).then(([job_title, reporting_manager, office_location, language, hobby]) => {
-      setOptions({ job_title, reporting_manager, office_location, language, hobby });
-    });
+    // Options are already set from imported JSON
   }, []);
 
   const update = useCallback(
@@ -87,10 +59,9 @@ export default function JoiningForm({ onChange, onParagraphGenerated }: Props) {
     [update]
   );
 
-  // Called when user adds a custom option in a dropdown
+  // Called when user adds a custom option in a dropdown (adds locally only)
   const handleAddOption = useCallback(
-    async (category: keyof OptionsMap, value: string) => {
-      await saveOption(category, value);
+    (category: keyof OptionsMap, value: string) => {
       setOptions((prev) => ({
         ...prev,
         [category]: [...prev[category], value].sort(),
