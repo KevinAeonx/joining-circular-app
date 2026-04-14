@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { href: "/",            label: "Joining Circular", icon: "📋" },
   { href: "/birthday",    label: "Birthday",          icon: "🎂" },
   { href: "/anniversary", label: "Anniversary",       icon: "🏆" },
-  { href: "/history",     label: "History",           icon: "🕐" },
+  // { href: "/history",     label: "History",           icon: "🕐" }, // Commented out for now
 ];
 
 export default function AppNav() {
